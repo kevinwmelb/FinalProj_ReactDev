@@ -1,7 +1,8 @@
-import React, {useState, useEffect} from 'react';
+import {useState, useEffect} from 'react';
 import {Link, Routes, Route} from 'react-router-dom';
 import {Outlet, useNavigate} from 'react-router-dom';
 import {Container, Stack, NativeSelect, Button, InputLabel} from '@mui/material'
+import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper} from '@mui/material'
 import XNYS1000 from './XNYS1000'
 import XETRA1000 from './XETRA1000'
 
@@ -18,7 +19,7 @@ let selectedSymbols=[]
 //To avoid rendering caused by mount:
 let fromMount=0
 
-function ToLong (props) {
+function ToLong () {
 	const [percentage, setPercentage] = useState("0.05")
 	const [exchange, setExchange] = useState("ALL")
 	const [timeup, setTimeup] = useState(false)
@@ -221,7 +222,6 @@ function ToLong (props) {
 		//}
 	//}
 
-
 	useEffect(handleAPI, [startSelect])
 
 	return (
@@ -273,7 +273,34 @@ function ToLong (props) {
 		    </Stack>
 		   </form>
 
-		  <Outlet context={selectedSymbols} />
+
+		   <div> 
+			   {selectedSymbols.length > 0 && selectedSymbols.map((sym, index) => 
+		   		  (
+					<TableContainer component={Paper} key={index}>
+						<Table sx={{minWidth:650}} aria-label="simple table">
+							<TableBody>
+								<TableRow>
+									<TableCell component="th" scope="row">
+										<SymbolChart sym={sym} key={index} />
+									</TableCell>
+									<TableCell>
+										<p>Company Name: {sym.company}</p>
+										<p>Company Symbol: {sym.symbol}</p>
+										<p>Company Current Month Close: {sym.current}</p>
+										<p>Company Past Year Average: {sym.yearAverage}</p>
+										<p>Company Actual Change Percentage: {sym.percentage}</p>
+										<p>Exchange: {sym.exchange}</p>
+										<a href="http://localhost:3000/">...to check details</a> 
+									</TableCell>
+								</TableRow>
+							</TableBody>
+						</Table>
+					</TableContainer>
+		  		  )
+				)} 
+			</div>
+		  <Outlet />
 		  {/* <div> {Object.keys(selectedSymbols).length > 0 && selectedSymbols.map((sym, index) => <SymbolChart sym={sym} key={index} />)} </div>*/}
 		  {/*<h1>Percent:{percentage}; 1st:{selectedSymbols[0]}; 2nd:{selectedSymbols[1]}</h1>*/}
 		  <h1>API Err: {apiErr}</h1>

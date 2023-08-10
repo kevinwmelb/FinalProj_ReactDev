@@ -23,8 +23,7 @@ function MainPage() {
 
 	return (
 		<div className="MainPage">
-			<button onClick={getSymbols}>Get Symbols First</button>
-		        <UrwTV />
+			<button onClick={getSymbols}>Data Collection</button>
 		        <WebTV />
 		</div>
 	)

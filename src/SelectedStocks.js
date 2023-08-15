@@ -1,4 +1,5 @@
-import {useState, useEffect} from 'react';
+import React from 'react';
+import {useContext, useState} from 'react';
 import {Link, Routes, Route} from 'react-router-dom';
 import {useOutletContext, Outlet, useNavigate} from 'react-router-dom';
 import {Container, Stack, NativeSelect, Button, InputLabel} from '@mui/material'
@@ -8,6 +9,7 @@ import XETRA1000 from './XETRA1000'
 
 import LoadingButton from '@mui/lab/LoadingButton'
 import SymbolChart from './SymbolChart'
+import {Context} from './ToLong'
 
 //const APIKey = process.env.REACT_APP_MARKETSTACK_API_KEY;
 const APIKey = process.env.REACT_APP_ALPHAV_API_KEY;
@@ -21,7 +23,10 @@ let fromMount=0
 
 function SelectedStocks () {
 	const selectedSymbols=useOutletContext()
-	console.log("sucess!!:", selectedSymbols)
+	console.log("selectedSymbols in SelectedStocks:", selectedSymbols)
+	//Context also works, as long as there is no HTTP redirection
+	//const props=React.useContext(Context)
+	//console.log("SelectedStocks Context:", props)
 
 	const [percentage, setPercentage] = useState("0.05")
 	const [exchange, setExchange] = useState("ALL")
@@ -33,9 +38,14 @@ function SelectedStocks () {
 	//const [nok, setNok] = useState([])
 	//const [monthly, setMonthly] = useState("")
 	const [apiErr, setApiErr] = useState("")
+	let navigate=useNavigate()
+
+	const handleSubmit = sym => {
+		navigate(sym)
+	}
 
 	return (
-		<Container className="ToLong" maxWidth="md" sx={{textAlign: "center"}}>
+		<Container className="selectedStocks" maxWidth="md" sx={{textAlign: "center"}}>
 		   <div> 
 			   {selectedSymbols.length > 0 && selectedSymbols.map((sym, index) => 
 		   		  (
@@ -53,7 +63,15 @@ function SelectedStocks () {
 										<p>Company Past Year Average: {sym.yearAverage}</p>
 										<p>Company Actual Change Percentage: {sym.percentage}</p>
 										<p>Exchange: {sym.exchange}</p>
-										<a href={`http://localhost:3000/tolong/${sym.symbol}`}>...to check details</a> 
+										<Button
+											variant="contained"
+											size="medium"
+											onClick={()=>handleSubmit(`${sym.symbol}`)}
+										>
+											...to check details
+										</Button>
+										{/*link tag from react router dom also work */}
+										{/* hyperlink will change context! <a href={`http://localhost:3000/tolong/${sym.symbol}`}>...to check details</a>*/} 
 									</TableCell>
 								</TableRow>
 							</TableBody>

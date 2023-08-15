@@ -24,7 +24,7 @@ function ToShort() {
 
 	return (
 		<div className="MainPage">
-			<button onClick={getGif}>To Short</button>
+			<button onClick={getGif}>Very Similar to ToLong Tab. Coming Soon...</button>
 			<h2>{phrase}</h2>
 		</div>
 	)

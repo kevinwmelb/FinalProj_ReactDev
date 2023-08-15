@@ -1,14 +1,13 @@
 // TradingViewWidget.jsx
+
 import React, { useEffect, useRef } from 'react';
 
 let tvScriptLoadingPromise;
-let selectedSymbols = []
-//console.log("selectedSymbols:", selectedSymbols)
-
-export default function TradingViewWidget(props) {
+let selectedSymbols = null
+export default function DAXIndex(props) {
   const onLoadScriptRef = useRef();
-  selectedSymbols=[props.sym]
-  console.log("selectedSymbols from SymbolChart:", selectedSymbols)
+  selectedSymbols=props.sym
+  console.log("selectedSymbols from DAXIndex:", selectedSymbols)
 
   useEffect(
     () => {
@@ -31,40 +30,31 @@ export default function TradingViewWidget(props) {
       return () => onLoadScriptRef.current = null;
 
       function createWidget() {
-	for (let i=0; i<selectedSymbols.length; i++) {
-        if (document.getElementById(`tradingview_${selectedSymbols[i].symbol}`) && 'TradingView' in window) {
+        if (document.getElementById(`tradingview_${selectedSymbols}`) && 'TradingView' in window) {
           new window.TradingView.widget({
-	          width: 500,
-	          height: 300,
-            //autosize:true,
-            symbol: `${selectedSymbols[i].symbol}`,
+            autosize: true,
+            symbol: `${selectedSymbols}`,
             interval: "W",
             timezone: "Etc/UTC",
             theme: "light",
             style: "1",
             locale: "en",
-            toolbar_bg: "#f1f3f6",
             enable_publishing: false,
             allow_symbol_change: true,
-            container_id: `tradingview_${selectedSymbols[i].symbol}`
+            container_id: `tradingview_${selectedSymbols}`
           });
         }
-	}
-       }
+      }
     },
     []
   );
 
   return (
     <div className='tradingview-widget-container'>
-      {selectedSymbols.length > 0 && selectedSymbols.map((sym, index) => (
-	<div key={index}>
-      	<div id={`tradingview_${sym.symbol}`} />
-      	<div className="tradingview-widget-copyright">
-      	</div>
-      	<h2>Stock Chart for {sym.symbol}</h2>
-	</div>
-      ))}
+      <div id={`tradingview_${selectedSymbols}`} />
+      <div className="tradingview-widget-copyright">
+        <a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span className="blue-text">Track all markets on TradingView</span></a>
+      </div>
     </div>
   );
 }

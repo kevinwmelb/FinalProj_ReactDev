@@ -17,6 +17,7 @@ const APIKey = process.env.REACT_APP_ALPHAV_API_KEY;
 let selectedSymbols=[]
 //To avoid rendering caused by mount:
 let fromMount=0
+export const Context=React.createContext({})
 
 function ToLong (props) {
 	const [percentage, setPercentage] = useState("0.05")
@@ -30,13 +31,32 @@ function ToLong (props) {
 	//const [monthly, setMonthly] = useState("")
 	const [apiErr, setApiErr] = useState("")
 
+	const handleExchange =()=>{
+		if (exchange == "ALL") {
+			handleAPI("XNYS1000", 1)
+			handleAPI("XETRA1000", 1)
+		} else if (exchange == "XNYS") {
+			handleAPI("XNYS1000", 3)
+		} else if (exchange == "XETRA") {
+			handleAPI("XETRA1000", 3)
+		} else {
+			setApiErr("Wrong Exchange Code")
+		}
+		return
+	}
 
-
-	const handleAPI = () => {
-		//To skip the 1st call at mount.
+	const handleAPI = (exchangeFile, times) => {
+		console.log("exchangeFile:", exchangeFile, "times:", times)
+		//To skip the 1st and 2nd calls at mount for exchange "ALL".
+		//let exc=eval({exchangeFile})
+		//console.log("exc:", exc.exchangeFile)
+		let skipTimes=2
+		if (exchange == "ALL") {
+			skipTimes=3
+		}
 		fromMount+=1
 		console.log("fromMount:", fromMount)
-		if (fromMount<2) {
+		if (fromMount<skipTimes) {
 			return
 		}
 
@@ -53,11 +73,26 @@ function ToLong (props) {
 		//	console.log("states3:", percentage)
 		//}
 
-		for (let i=0; i<2; i++) {
-			let symbol=XNYS1000.data.tickers[i].symbol
-			let exchangeAcronym=XNYS1000.data.mic
-			let companyName=XNYS1000.data.tickers[i].name
-			console.log("Symbol:", symbol)
+		for (let i=0; i<times; i++) {
+			let symbol
+			let exchangeAcronym
+			let companyName
+			let sym1
+			let sym2
+
+			if (exchangeFile == "XNYS1000") {
+			   symbol=XNYS1000.data.tickers[i].symbol
+			   exchangeAcronym=XNYS1000.data.mic
+			   companyName=XNYS1000.data.tickers[i].name
+			} else if (exchangeFile == "XETRA1000") {
+				sym1=XETRA1000.data.tickers[i].symbol
+				sym2=sym1.slice(0,-5)
+				symbol=sym2+"DEX"
+				exchangeAcronym=XETRA1000.data.mic
+				companyName=XETRA1000.data.tickers[i].name
+			}
+
+			console.log("Symbol in Tolong:", symbol)
 			let monthlyData=null
 			//let currentMonth=null
 			let currentMonthClose=null
@@ -148,6 +183,10 @@ function ToLong (props) {
 							stockPercentage=1-Number(currentMonthClose)/year1Average
 							console.log("percentage:", stockPercentage, percentage)
 							if (Number(stockPercentage)>=Number(percentage) && Number(stockPercentage)<1) {
+								if (exchangeFile == "XETRA1000") {
+									sym2=sym1.slice(0,-6)
+									symbol="XETR:"+sym2
+								}
 								//incorrect syntax: selectedSymbols={...selectedSymbols, {symbol:symbol, company:companyName, exchange:exchangeAcronym, current:currentMonthClose, y:year1Average, percent:stockPercentage}}
 								selectedSymbols=[...selectedSymbols, {"symbol":symbol, "company":companyName, "exchange":exchangeAcronym, "current":currentMonthClose, "yearAverage":year1Average, "percent":stockPercentage}]
 								setSymbols([symbol])
@@ -198,7 +237,7 @@ function ToLong (props) {
 		//setSymbols(selectedSymbols)
 		setTimeout(
 			()=>{
-				console.log("waiting 1 min");
+				console.log("Due to license limit, pls wait 1 min...");
 				setTimeup(false)
 			},
 			60000
@@ -222,9 +261,10 @@ function ToLong (props) {
 	//}
 
 
-	useEffect(handleAPI, [startSelect])
+	useEffect(handleExchange, [startSelect])
 
 	return (
+		<Context.Provider value={selectedSymbols}>
 		<Container className="ToLong" maxWidth="md" sx={{textAlign: "center"}}>
 		  <h1>Pls Submit Symbol Search</h1>
 		  <form onSubmit={handleAPI}>
@@ -278,6 +318,7 @@ function ToLong (props) {
 		  {/*<h1>Percent:{percentage}; 1st:{selectedSymbols[0]}; 2nd:{selectedSymbols[1]}</h1>*/}
 		  <h1>API Err: {apiErr}</h1>
 		</Container>
+		</Context.Provider>
 	)
 }
 

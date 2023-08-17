@@ -266,7 +266,8 @@ function ToLong (props) {
 	return (
 		<Context.Provider value={selectedSymbols}>
 		<Container className="ToLong" maxWidth="md" sx={{textAlign: "center"}}>
-		  <h1>Pls Submit Symbol Search</h1>
+		  <h1>Symbol Search</h1>
+		  <p><b>- based on exchange location and price difference between current month and last year average</b></p>
 		  <form onSubmit={handleAPI}>
 		    <Stack
 		     direction="row"
@@ -274,7 +275,7 @@ function ToLong (props) {
 		     alignItems="center"
 		     spacing={2}
 		    >
-			<InputLabel variant="standard">Percentage Difference:</InputLabel>
+			<InputLabel variant="standard">Price Difference:</InputLabel>
 		 	<NativeSelect 
 			 defaultValue={0.05}
 			 onChange={e=>{setPercentage(e.target.value); setTimeup(false)}}
@@ -302,12 +303,12 @@ function ToLong (props) {
 			</NativeSelect>
 		
 			<LoadingButton
-		         variant="outlined"
+		         variant="contained"
 		         loading={timeup}
-				 loadingIndicator="... 1 min for data processing"
+				 loadingIndicator="One Min Query..."
 		         onClick={e=>{selectedSymbols=[]; setStartSelect(!startSelect); setTimeup(true)}}
 		    >
-			  Start Symbol Selection
+			  Symbol Search
 		    </LoadingButton>
 
 		    </Stack>
@@ -315,8 +316,8 @@ function ToLong (props) {
 
 		  <Outlet context={selectedSymbols} />
 		  {/* <div> {Object.keys(selectedSymbols).length > 0 && selectedSymbols.map((sym, index) => <SymbolChart sym={sym} key={index} />)} </div>*/}
-		  {/*<h1>Percent:{percentage}; 1st:{selectedSymbols[0]}; 2nd:{selectedSymbols[1]}</h1>*/}
-		  <h1>API Err: {apiErr}</h1>
+		  {/*<h1>Percent:{percentage}; 1st:{selectedSymbols[0]}; 2nd:{selectedSymbols[1]}</h1>
+		  <h1>API Err: {apiErr}</h1>*/}
 		</Container>
 		</Context.Provider>
 	)

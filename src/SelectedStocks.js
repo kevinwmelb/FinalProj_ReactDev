@@ -4,6 +4,7 @@ import {Link, Routes, Route} from 'react-router-dom';
 import {useOutletContext, Outlet, useNavigate} from 'react-router-dom';
 import {Container, Stack, NativeSelect, Button, InputLabel} from '@mui/material'
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper} from '@mui/material'
+import Divider from '@mui/material/Divider';
 import XNYS1000 from './XNYS1000'
 import XETRA1000 from './XETRA1000'
 
@@ -46,29 +47,35 @@ function SelectedStocks () {
 
 	return (
 		<Container className="selectedStocks" maxWidth="md" sx={{textAlign: "center"}}>
+			<h1> </h1>
 		   <div> 
 			   {selectedSymbols.length > 0 && selectedSymbols.map((sym, index) => 
 		   		  (
 					<TableContainer component={Paper} key={index}>
-						<Table sx={{minWidth:650}} aria-label="simple table">
+						<Table sx={{minWidth:650, "& .MuiTableCell-root": {border: '1px solid black'}}} aria-label="simple table">
 							<TableBody>
 								<TableRow>
-									<TableCell component="th" scope="row">
+									<TableCell component="th" scope="row" width="600">
 										<SymbolChart sym={sym} key={index} />
 									</TableCell>
-									<TableCell>
+									<TableCell width="400">
 										<p>Company Name: {sym.company}</p>
+										<Divider />
 										<p>Company Symbol: {sym.symbol}</p>
+										<Divider />
 										<p>Company Current Month Close: {sym.current}</p>
+										<Divider />
 										<p>Company Past Year Average: {sym.yearAverage}</p>
-										<p>Company Actual Change Percentage: {sym.percentage}</p>
+										<Divider />
+										<p>Company Actual Change Percentage: {sym.percent}</p>
+										<Divider />
 										<p>Exchange: {sym.exchange}</p>
 										<Button
 											variant="contained"
 											size="medium"
 											onClick={()=>handleSubmit(`${sym.symbol}`)}
 										>
-											...to check details
+											check details ...
 										</Button>
 										{/*link tag from react router dom also work */}
 										{/* hyperlink will change context! <a href={`http://localhost:3000/tolong/${sym.symbol}`}>...to check details</a>*/} 
@@ -80,6 +87,7 @@ function SelectedStocks () {
 		  		  )
 				)} 
 			</div>
+			<h1> </h1>
 		</Container>
 	)
 }

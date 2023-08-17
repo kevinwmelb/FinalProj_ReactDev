@@ -30,8 +30,7 @@ export default function IndexSPX() {
       function createWidget() {
         if (document.getElementById('tradingview_OANDA:SPX500USD') && 'TradingView' in window) {
           new window.TradingView.widget({
-            width: 500,
-	          height: 300,
+            autosize: true,
             symbol: "OANDA:SPX500USD",
             interval: "W",
             timezone: "Etc/UTC",

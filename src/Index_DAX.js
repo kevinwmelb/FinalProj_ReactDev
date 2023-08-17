@@ -30,8 +30,7 @@ export default function IndexDAX() {
       function createWidget() {
         if (document.getElementById('tradingview_74f71') && 'TradingView' in window) {
           new window.TradingView.widget({
-            width: 500,
-	          height: 300,
+            autosize: true,
             symbol: "INDEX:DEU40",
             interval: "W",
             timezone: "Etc/UTC",

@@ -30,8 +30,7 @@ export default function IndexVIX() {
       function createWidget() {
         if (document.getElementById('tradingview_CAPITALCOM:VIX') && 'TradingView' in window) {
           new window.TradingView.widget({
-            width: 500,
-	          height: 300,
+            autosize: true,
             symbol: "CAPITALCOM:VIX",
             interval: "W",
             timezone: "Etc/UTC",

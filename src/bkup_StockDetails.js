@@ -9,7 +9,6 @@ import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper}
 import LoadingButton from '@mui/lab/LoadingButton'
 import Divider from '@mui/material/Divider';
 import { DataGrid } from '@mui/x-data-grid';
-import StockDetailsOneDataGrid from './StockDetailsOneDataGrid'
 
 //const APIKey = process.env.REACT_APP_MARKETSTACK_API_KEY;
 const APIKey = process.env.REACT_APP_ALPHAV_API_KEY;
@@ -22,7 +21,6 @@ let returnEarningInfo=[]
 let apiError=null
 let sym={}
 let rows=[]
-let ovEarningRows=[]
 let x=0
 let z=0
 
@@ -83,7 +81,7 @@ export default function StockDetails() {
 						console.log("TableTrigger!");
 						setTableTrigger(true)
 					},
-					9000
+					3000
 				)
 			})
 		console.log("URL:", `https://www.alphavantage.co/query?function=EARNINGS&apikey=${APIKey}&symbol=${sym.symbol}`)
@@ -163,19 +161,6 @@ export default function StockDetails() {
 	{ field: 'SentimentLabel', headerName: 'SentimentLabel', width: 150 },
   ];
 
-  const ovEarningColumns = [
-	{ field: 'id', headerName: 'ID', width: 3 },
-	{ field: 'Desc', headerName: 'Description', width: 150 },
-	{ field: 'EBITDA', headerName: 'EBITDA', width: 65 },
-	{ field: 'PE', headerName: 'PERatio', width: 70 },
-	{ field: 'EPS', headerName: 'EPS', width: 60 },
-	{ field: '52WKH', headerName: '52WeekHigh', width: 100	},
-	{ field: '52WKL', headerName: '52WeekLow', width: 100	},
-	{ field: '50DMA', headerName: '50DayMovingAverage', width: 110,	},
-	{ field: '200DMA', headerName: '200DayMovingAverage', width: 110,	},
-	{ field: 'OneYearEarning', headerName: 'OneYearEarning', width: 120 },
-  ];
-
   const handleRows = () => {
 	rowInit+=1
 	console.log("rowInit:", rowInit)
@@ -189,27 +174,10 @@ export default function StockDetails() {
 		}
 		let urlTitle=""
 		urlTitle="<a href='"+returnNewsInfo[z].url+"'>"+returnNewsInfo[z].title+"</a>"
-		//console.log("stockSymbol:", stockSymbol)
+		console.log("stockSymbol:", stockSymbol)
 		rows=[...rows, {"id":z, "Title":returnNewsInfo[z].title, "Summary":returnNewsInfo[z].summary, "PublishTime":returnNewsInfo[z].time_published, "Source":returnNewsInfo[z].source, "StockSymbol":stockSymbol, "SentimentScore":returnNewsInfo[z].overall_sentiment_score,"SentimentLabel":returnNewsInfo[z].overall_sentiment_label}]
 	}
 	console.log("rows:", rows)
-
-
-	//for (z=0; z<returnNewsInfo.length; z++) {
-	//	let stockSymbol=""
-	//	for (x=0; x<returnNewsInfo[z].ticker_sentiment.length; x++) {
-	//		stockSymbol=returnNewsInfo[z].ticker_sentiment[x].ticker+", "+stockSymbol
-	//	}
-	//	let urlTitle=""
-	//	urlTitle="<a href='"+returnNewsInfo[z].url+"'>"+returnNewsInfo[z].title+"</a>"
-		//console.log("stockSymbol:", stockSymbol)
-	//}
-	let WH52=returnOvInfo[Object.keys(returnOvInfo)[39]]
-	let WL52=returnOvInfo[Object.keys(returnOvInfo)[40]]
-	let DMA50=returnOvInfo[Object.keys(returnOvInfo)[41]]
-	let DMA200=returnOvInfo[Object.keys(returnOvInfo)[42]]
-	ovEarningRows=[{"id":0, "Desc":returnOvInfo.Description, "EBITDA":returnOvInfo.EBITDA, "PE":returnOvInfo.PERatio, "EPS":returnOvInfo.EPS, "52WKH":WH52, "52WKL":WL52, "50DMA":DMA50, "200DMA":DMA200, "OneYearEarning":"abc" }]
-	console.log("ovEarningRows:", ovEarningRows)
   }
 
 //const rows = [
@@ -234,44 +202,67 @@ export default function StockDetails() {
 								<p>Company Name: {sym.company}</p>
 								<Divider />
 								<p>Company Symbol: {sym.symbol}</p>
-								<Divider />
-								<p>Company Current Month Close: {sym.current}</p>
-								<Divider />
-								<p>Company Past Year Average: {sym.yearAverage}</p>
-								<Divider />
-								<p>Company Actual Change Percentage: {sym.percent}</p>
-								<Divider />
-								<p>Exchange: {sym.exchange}</p>
-								
 							</TableCell>
 						</TableRow>
 					</TableBody>
 				</Table>
 			</TableContainer>
-			<h1></h1>
-			<h1></h1>
-			<h1></h1>
-			<h1></h1>
-			{tableTrigger == true && (<StockDetailsOneDataGrid rows={ovEarningRows} />)}
 
-			<h1></h1>
-				{tableTrigger == true && (
-					<div style={{ height: 400, width: '120%' }}>
-					<DataGrid
-					align="left"
-        			rows={rows}
-        			columns={columns}
-        			initialState={{
-          				pagination: {
-            				paginationModel: { page: 0, pageSize: 5 },
-          				},
-        			}}
-        			pageSizeOptions={[5, 10]}
-      				/>
-					</div>
+
+			<div> 
+					 <TableContainer component={Paper}>
+						 <Table sx={{minWidth:650}} aria-label="simple table">
+							 <TableBody>
+								 <TableRow>
+									 <TableCell>
+										 <p>50 Day Moving Average: {returnOvInfo[Object.keys(returnOvInfo)[41]]}</p>
+										 <p>200 Day Moving Average: {returnOvInfo[Object.keys(returnOvInfo)[42]]}</p>
+									 </TableCell>
+									 <TableCell>
+										 Current Year Earnings: {returnEarningInfo.map((annualEarn, key) =>
+										<div key={key}>{annualEarn.fiscalDateEnding}:&nbsp;{annualEarn.reportedEPS}</div>)}
+
+									 </TableCell>
+								 </TableRow>
+							 </TableBody>
+						 </Table>
+					 </TableContainer>
+			</div>
+			<div>
+				{returnNewsInfo.length > 0 && returnNewsInfo.map((news, index) => 
+				  (
+					 <TableContainer component={Paper} key={index}>
+						 <Table sx={{minWidth:650}} aria-label="simple table">
+							 <TableBody>
+								 <TableRow>
+									 <TableCell component="th" scope="row">
+										<a href={`${news.url}`}>{news.title}</a>
+									 </TableCell>
+									 <TableCell>
+										 <p>Publish Time: {news.time_published}</p>
+										 <p>Authors: {news.authors}</p>
+										 <p>Source: {news.source}</p>
+										 Related Stock Symbols: {news.ticker_sentiment.map((symbol, idx) => 
+										 	(
+												<div key={idx}>{symbol.ticker}&nbsp;</div>
+											)
+										 )}
+										 
+									 </TableCell>
+									 <TableCell>
+										Summary: {news.summary}
+									 </TableCell>
+									 <TableCell>
+										<p>Overall Sentiment Score: {news.overall_sentiment_score}</p>
+										<p>Overall Sentiment Label: {news.overall_sentiment_label}</p>
+									 </TableCell>
+								 </TableRow>
+							 </TableBody>
+						 </Table>
+					 </TableContainer>
+			 		)
 				)} 
-
-				
+			</div>
    			<Button
 				variant="contained"
 				size="medium"
@@ -279,7 +270,7 @@ export default function StockDetails() {
 			>
 				Back to all selected symbols
 			</Button>
-			<h1></h1>
+
 		</Container>
 	)
 }

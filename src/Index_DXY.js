@@ -30,8 +30,7 @@ export default function IndexDXY() {
       function createWidget() {
         if (document.getElementById('tradingview_CAPITALCOM:DXY') && 'TradingView' in window) {
           new window.TradingView.widget({
-            width: 500,
-	          height: 300,
+            autosize: true,
             symbol: "CAPITALCOM:DXY",
             interval: "W",
             timezone: "Etc/UTC",

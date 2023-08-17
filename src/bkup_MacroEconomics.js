@@ -19,15 +19,15 @@ import { DataGrid } from '@mui/x-data-grid';
 const APIKey = process.env.REACT_APP_ALPHAV_API_KEY;
 //To avoid rendering caused by mount:
 let fromMount=0
-let rowInit=0
 let returnInfo=[]
 let apiError=null
 let symbolString=""
 let topicString=""
 let limitString=""
-let rows=[]
-let x=0
-let z=0
+let indexDAX={"symbol": "INDEX:DEU40"}
+let indexDXY={"symbol": "CAPITALCOM:DXY"}
+let indexSPX={"symbol": "OANDA:SPX500USD"}
+let indexVIX={"symbol": "CAPITALCOM:VIX"}
 
 function MacroEconomics() {
 	const [symbol, setSymbol] = useState("")
@@ -35,8 +35,6 @@ function MacroEconomics() {
 	const [limit, setLimit] = useState(50)
 	const [timeup, setTimeup] = useState(false)
 	const [startSelect, setStartSelect] = useState(false)
-	const [tableTrigger, setTableTrigger] = useState(false)
-
 
 	const handleAPI = () => {
 		fromMount+=1
@@ -45,10 +43,10 @@ function MacroEconomics() {
 			return
 		}
 
-		//if (symbol != "") {
-		//	symbolString="&tickers="+symbol
-		//	console.log("symbolString:", symbolString)
-		//}
+		if (symbol != "") {
+			symbolString="&tickers="+symbol
+			console.log("symbolString:", symbolString)
+		}
 
 		if (topic != "") {
 			topicString="&topics="+topic
@@ -80,14 +78,6 @@ function MacroEconomics() {
 					    }
 				   })
 				}
-				setTimeout(
-					()=>{
-						console.log("TableTrigger!");
-						setTableTrigger(true)
-					},
-					3000
-				)
-				
 			})
 
 		setTimeout(
@@ -95,56 +85,37 @@ function MacroEconomics() {
 				console.log("Due to license limit, pls wait 1 min...");
 				setTimeup(false)
 			},
-			5000
+			10000
 		)
 		//return selectedSymbols
 		return
 	}
+
+	useEffect(handleAPI, [startSelect])
+
 	
 	const columns = [
-		{ field: 'id', headerName: 'ID', width: 10 },
-		{ field: 'Title', headerName: 'Title', width: 150 },
-		{ field: 'Summary', headerName: 'Summary', width: 200 },
-		{ field: 'PublishTime', headerName: 'PublishTime', width: 150 },
+		{ field: 'Title', headerName: 'Title', width: 100 },
+		{ field: 'Summary', headerName: 'Summary', width: 130 },
+		{ field: 'PublishTime', headerName: 'PublishTime', width: 50 },
 		{
 	  		field: 'Source',
 	  		headerName: 'Source',
-	  		width: 120,
+	  		width: 40,
 		},
 		{
-	  		field: 'StockSymbol',
+	  		field: 'RelatedStockSymbol',
 	  		headerName: 'RelatedStockSymbol',
-	  		width: 100,
+	  		width: 80,
 		},
-		{ field: 'SentimentScore', headerName: 'SentimentScore', width: 100 },
-		{ field: 'SentimentLabel', headerName: 'SentimentLabel', width: 150 },
+		{ field: 'OverallSentimentScore', headerName: 'OverallSentimentScore', width: 30 },
+		{ field: 'OverallSentimentLabel', headerName: 'OverallSentimentLabel', width: 30 },
   	];
   
-	const handleRows = () => {
-		rowInit+=1
-		console.log("rowInit:", rowInit)
-		if (rowInit<2) {
-			return
-		}
-		for (z=0; z<returnInfo.length; z++) {
-			let stockSymbol=""
-			for (x=0; x<returnInfo[z].ticker_sentiment.length; x++) {
-				stockSymbol=returnInfo[z].ticker_sentiment[x].ticker+", "+stockSymbol
-			}
-			let urlTitle=""
-			urlTitle="<a href='"+returnInfo[z].url+"'>"+returnInfo[z].title+"</a>"
-			console.log("stockSymbol:", stockSymbol)
-			rows=[...rows, {"id":z, "Title":returnInfo[z].title, "Summary":returnInfo[z].summary, "PublishTime":returnInfo[z].time_published, "Source":returnInfo[z].source, "StockSymbol":stockSymbol, "SentimentScore":returnInfo[z].overall_sentiment_score,"SentimentLabel":returnInfo[z].overall_sentiment_label}]
-		}
-		console.log("rows:", rows)
-	}
-
-	//const rows = [
-	//	{ id: 1, Title: "a", Summary: 'bc', PublishTime: '20230816T102524', Source: "Cointelegraph", StockSymbol: "CRYPTO:BTC", SentimentScore: -0.189983, SentimentLabel: "Somewhat-Bearish"},
-	//	{ id: 2, Title: "d", Summary: 'ef', PublishTime: '20230816T102525', Source: "Cointelegraph", StockSymbol: "NOK", SentimentScore: 0.189983, SentimentLabel: "Somewhat-Bullish"},
-	//];
-	useEffect(handleAPI, [startSelect])
-	useEffect(handleRows, [tableTrigger])
+	  const rows = [
+		{ Title: "a", Summary: 'bc', PublishTime: '20230816T102524', Source: "Cointelegraph", RelatedStockSymbol: "CRYPTO:BTC", OverallSentimentScore: -0.189983, OverallSentimentLabel: "Somewhat-Bearish"},
+		{ Title: "d", Summary: 'ef', PublishTime: '20230816T102525', Source: "Cointelegraph", RelatedStockSymbol: "NOK", OverallSentimentScore: 0.189983, OverallSentimentLabel: "Somewhat-Bullish"},
+	  ];
 
 	return (
 
@@ -218,33 +189,52 @@ function MacroEconomics() {
 			<LoadingButton
 		         variant="contained"
 				 size="large"
-				 fontSize="3%"
+				 fontsize="3%"
 		         loading={timeup}
 				 loadingIndicator="One Min Query..."
-		         onClick={e=>{setTableTrigger(false); setStartSelect(!startSelect); setTimeup(true)}}
+		         onClick={e=>{returnInfo=[]; setStartSelect(!startSelect); setTimeup(true)}}
 		    >
 			  Start Search
 		    </LoadingButton>
 
 		    </Stack>
 		   </form>
-		   
-		   {tableTrigger == true && (
-		    <div style={{ height: 400, width: '120%' }}>
-      			<DataGrid
-					align="left"
-        			rows={rows}
-        			columns={columns}
-        			initialState={{
-          				pagination: {
-            				paginationModel: { page: 0, pageSize: 5 },
-          				},
-        			}}
-        			pageSizeOptions={[5, 10]}
-      			/>
-    		</div>
-		   )}
-			<h1> </h1>
+
+			<div> 
+				{returnInfo.length > 0 && returnInfo.map((news, index) => 
+				  (
+					 <TableContainer component={Paper} key={index}>
+						 <Table sx={{minWidth:650}} aria-label="simple table">
+							 <TableBody>
+								 <TableRow>
+									 <TableCell component="th" scope="row">
+										<a href={`${news.url}`}>{news.title}</a>
+									 </TableCell>
+									 <TableCell>
+										 <p>Publish Time: {news.time_published}</p>
+										 <p>Authors: {news.authors}</p>
+										 <p>Source: {news.source}</p>
+										 Related Stock Symbols: {news.ticker_sentiment.map((symbol, idx) => 
+										 	(
+												<div key={idx}>{symbol.ticker}&nbsp;</div>
+											)
+										 )}
+										 
+									 </TableCell>
+									 <TableCell>
+										Summary: {news.summary}
+									 </TableCell>
+									 <TableCell>
+										<p>Overall Sentiment Score: {news.overall_sentiment_score}</p>
+										<p>Overall Sentiment Label: {news.overall_sentiment_label}</p>
+									 </TableCell>
+								 </TableRow>
+							 </TableBody>
+						 </Table>
+					 </TableContainer>
+			 		)
+				)} 
+			</div>
 		 </Container>
 	)
 

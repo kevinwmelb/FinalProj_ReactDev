@@ -9,7 +9,6 @@ import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper}
 import LoadingButton from '@mui/lab/LoadingButton'
 import Divider from '@mui/material/Divider';
 import { DataGrid } from '@mui/x-data-grid';
-import StockDetailsOneDataGrid from './StockDetailsOneDataGrid'
 
 //const APIKey = process.env.REACT_APP_MARKETSTACK_API_KEY;
 const APIKey = process.env.REACT_APP_ALPHAV_API_KEY;
@@ -248,16 +247,30 @@ export default function StockDetails() {
 					</TableBody>
 				</Table>
 			</TableContainer>
-			<h1></h1>
-			<h1></h1>
-			<h1></h1>
-			<h1></h1>
-			{tableTrigger == true && (<StockDetailsOneDataGrid rows={ovEarningRows} />)}
 
 			<h1></h1>
 				{tableTrigger == true && (
+				<div style={{ height: 400, width: '120%' }}> 
+					<DataGrid
+					autoHeight="true"
+					align="left"
+        			rows={ovEarningRows}
+        			columns={ovEarningColumns}
+        			initialState={{
+          				pagination: {
+            				paginationModel: { page: 0, pageSize: 5 },
+          				},
+        			}}
+        			pageSizeOptions={[5, 10]}
+      				/>
+				</div>
+				)}
+
+			<h1></h1>
+			{/*	{tableTrigger == true && (
 					<div style={{ height: 400, width: '120%' }}>
 					<DataGrid
+					autoHeight="true"
 					align="left"
         			rows={rows}
         			columns={columns}
@@ -269,9 +282,8 @@ export default function StockDetails() {
         			pageSizeOptions={[5, 10]}
       				/>
 					</div>
-				)} 
-
-				
+				)} */}
+				<h1></h1> 
    			<Button
 				variant="contained"
 				size="medium"
